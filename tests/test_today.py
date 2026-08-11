@@ -222,7 +222,7 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
             assert expected in text
         for forbidden in ("Host", "Kernel", "Email", "LinkedIn", "Hardware"):
             assert forbidden not in text
-        assert "======" in text
+        assert ".+*+----=-.   .:+#-" in text
         namespace = {"svg": "http://www.w3.org/2000/svg"}
         aligned_values = root.findall(".//svg:text[@class='value aligned-value']", namespace)
         assert len(aligned_values) == 9

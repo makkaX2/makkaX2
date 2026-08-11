@@ -16,20 +16,20 @@
   </style>
   <rect width="985" height="435" fill="#f6f8fa" rx="15"/>
   <text fill="#24292f" class="ascii">
-    <tspan x="44" y="88">         .-======-. .------.       </tspan>
-    <tspan x="44" y="108">      .-'        '-'       '-.     </tspan>
-    <tspan x="44" y="128">    .'                       '-.   </tspan>
-    <tspan x="44" y="148">   /                           \  </tspan>
-    <tspan x="44" y="168">.-'                             |  </tspan>
-    <tspan x="44" y="188">/        \                       |  </tspan>
-    <tspan x="44" y="208">|         \                      |  </tspan>
-    <tspan x="44" y="228">|          &gt;                     |  </tspan>
-    <tspan x="44" y="248">|         /          ______      |  </tspan>
-    <tspan x="44" y="268">\        /                      .'  </tspan>
-    <tspan x="44" y="288"> '.                         .-'     </tspan>
-    <tspan x="44" y="308">   '-.                    .'        </tspan>
-    <tspan x="44" y="328">      '---.         .---'           </tspan>
-    <tspan x="44" y="348">          '---------'               </tspan>
+    <tspan x="44" y="88"></tspan>
+    <tspan x="44" y="108">         .=+++++=-:---:.</tspan>
+    <tspan x="44" y="128">       .**-.   .:==-:-=+*-</tspan>
+    <tspan x="44" y="148">      .##               :#+</tspan>
+    <tspan x="44" y="168">    =*+-.                -@:</tspan>
+    <tspan x="44" y="188">   *#.   -%-             .*#-</tspan>
+    <tspan x="44" y="208">  .@-     =%+              -%-</tspan>
+    <tspan x="44" y="228">   #*     -%*               #*</tspan>
+    <tspan x="44" y="248">    +#=  -%=    :+++++=    =%:</tspan>
+    <tspan x="44" y="268">     *%   .      ...... :+**.</tspan>
+    <tspan x="44" y="288">     :%+               -@=</tspan>
+    <tspan x="44" y="308">      .+*+----=-.   .:+#-</tspan>
+    <tspan x="44" y="328">         .----:=+++++=-</tspan>
+    <tspan x="44" y="348"></tspan>
   </text>
   <g fill="#24292f">
     <text x="390" y="27">makkaX2@mxka</text><line x1="506" y1="22" x2="960" y2="22" class="rule"/>
