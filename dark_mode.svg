@@ -16,23 +16,25 @@
   </style>
   <rect width="985" height="435" fill="#161b22" rx="15"/>
   <text fill="#c9d1d9" class="ascii">
-    <tspan x="44" y="88"></tspan>
-    <tspan x="44" y="108">             :-==+==:.  ...</tspan>
-    <tspan x="44" y="128">          .+#*=-::-=+##******+-</tspan>
-    <tspan x="44" y="148">         -%*.         .     .-*%=</tspan>
-    <tspan x="44" y="168">       .=@*                    =@+</tspan>
-    <tspan x="44" y="188">     -##+-.                     #%.</tspan>
-    <tspan x="44" y="208">    *%=    .#*.                 +%*.</tspan>
-    <tspan x="44" y="228">   -@=      -%%:                 .*%-</tspan>
-    <tspan x="44" y="248">   -@+       :@%.                  #%.</tspan>
-    <tspan x="44" y="268">    +%=     :#%=                   #%.</tspan>
-    <tspan x="44" y="288">     -##-  .%#:     :*######=    .*%-</tspan>
-    <tspan x="44" y="308">      :@+   .        .......  .=*#*:</tspan>
-    <tspan x="44" y="328">       #%:                   :%#-.</tspan>
-    <tspan x="44" y="348">       .+%+:.     .         -%#.</tspan>
-    <tspan x="44" y="368">         .=*******##+--:--+##=</tspan>
-    <tspan x="44" y="388">              ..   .-==+==-.</tspan>
-    <tspan x="44" y="408"></tspan>
+    <tspan x="13" y="42"></tspan>
+    <tspan x="13" y="62">               .:----:.</tspan>
+    <tspan x="13" y="82">            :+##*++++*##*+*****+-.</tspan>
+    <tspan x="13" y="102">          .*%+:        :=-:..:-=*%*:</tspan>
+    <tspan x="13" y="122">         .#%-                    :*%=</tspan>
+    <tspan x="13" y="142">       -+#%=                       #@:</tspan>
+    <tspan x="13" y="162">     -#%=:   ..                    *@=</tspan>
+    <tspan x="13" y="182">    =@*     .#@+                   :*%+.</tspan>
+    <tspan x="13" y="202">   .%%.      .*@*.                   :%%:</tspan>
+    <tspan x="13" y="222">    %%.        *@#                    -@#</tspan>
+    <tspan x="13" y="242">    -%#.      +%#:                    :%#</tspan>
+    <tspan x="13" y="262">     :*%+.   #@*.     :********-     :#%:</tspan>
+    <tspan x="13" y="282">       *@=   ::       .--------.   :+%#:</tspan>
+    <tspan x="13" y="302">       =@+                       *%#+:</tspan>
+    <tspan x="13" y="322">        +@+.                    +@*</tspan>
+    <tspan x="13" y="342">         -##*=:...:-=:        -#%+</tspan>
+    <tspan x="13" y="362">           .-+*****+*##*++++*##=.</tspan>
+    <tspan x="13" y="382">                      .:----:.</tspan>
+    <tspan x="13" y="402"></tspan>
   </text>
   <g fill="#c9d1d9">
     <text x="390" y="27">makkaX2@mxka</text><line x1="506" y1="22" x2="960" y2="22" class="rule"/>
