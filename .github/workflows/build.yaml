@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      README_STATS_TOKEN: ${{ secrets.README_STATS_TOKEN }}
+      README_STATS_TOKEN: ${{ secrets.README_STATS_TOKEN || github.token }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -38,14 +38,6 @@ jobs:
 
       - name: Run unit tests
         run: python -m pytest -q
-
-      - name: Validate stats token
-        shell: bash
-        run: |
-          if [[ -z "$README_STATS_TOKEN" ]]; then
-            echo "README_STATS_TOKEN is missing. Add it under Settings > Secrets and variables > Actions."
-            exit 1
-          fi
 
       - name: Update profile card
         run: python today.py

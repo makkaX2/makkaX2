@@ -39,7 +39,7 @@ class Repository:
     is_private: bool
     head_oid: str | None
     total_commits: int
-    stars: int = 0
+    primary_language: str | None = None
 
     @property
     def owner_and_name(self) -> tuple[str, str]:
@@ -51,7 +51,8 @@ class Repository:
         try:
             name_with_owner = node["nameWithOwner"]
             is_private = node["isPrivate"]
-            stars = node["stargazers"]["totalCount"]
+            primary_language_node = node.get("primaryLanguage")
+            primary_language = None if primary_language_node is None else primary_language_node["name"]
             default_branch = node.get("defaultBranchRef")
             if default_branch is None:
                 head_oid = None
@@ -75,16 +76,15 @@ class Repository:
             raise ProfileUpdateError("GitHub returned an invalid repository revision")
         if not isinstance(total_commits, int) or total_commits < 0:
             raise ProfileUpdateError("GitHub returned an invalid commit count")
-        if not isinstance(stars, int) or stars < 0:
-            raise ProfileUpdateError("GitHub returned an invalid star count")
+        if primary_language is not None and not isinstance(primary_language, str):
+            raise ProfileUpdateError("GitHub returned an invalid primary language")
 
-        return cls(name_with_owner, is_private, head_oid, total_commits, stars)
+        return cls(name_with_owner, is_private, head_oid, total_commits, primary_language)
 
 
 @dataclass(frozen=True)
 class UserMetadata:
     node_id: str
-    followers: int
 
 
 @dataclass(frozen=True)
@@ -106,9 +106,9 @@ class ProfileStats:
     public_repositories: int
     private_repositories: int
     contributed_repositories: int
-    stars: int
     commits: int
-    followers: int
+    active_repositories: int
+    languages: int
     additions: int
     deletions: int
 
@@ -134,7 +134,6 @@ class GitHubGraphQL:
     query ProfileUser($login: String!) {
       user(login: $login) {
         id
-        followers { totalCount }
       }
     }
     """
@@ -151,7 +150,7 @@ class GitHubGraphQL:
           nodes {
             nameWithOwner
             isPrivate
-            stargazers { totalCount }
+            primaryLanguage { name }
             defaultBranchRef {
               target {
                 ... on Commit {
@@ -180,7 +179,7 @@ class GitHubGraphQL:
           nodes {
             nameWithOwner
             isPrivate
-            stargazers { totalCount }
+            primaryLanguage { name }
             defaultBranchRef {
               target {
                 ... on Commit {
@@ -268,12 +267,11 @@ class GitHubGraphQL:
         try:
             user = data["user"]
             node_id = user["id"]
-            followers = user["followers"]["totalCount"]
         except (KeyError, TypeError) as exc:
             raise ProfileUpdateError("ProfileUser returned malformed data") from exc
-        if not isinstance(node_id, str) or not isinstance(followers, int):
+        if not isinstance(node_id, str):
             raise ProfileUpdateError("ProfileUser returned invalid values")
-        return UserMetadata(node_id=node_id, followers=followers)
+        return UserMetadata(node_id=node_id)
 
     def _list_repositories(
         self,
@@ -461,13 +459,20 @@ def collect_stats(
         }
 
     owned_values = list(owned.values())
+    repository_values = list(all_repositories.values())
     stats = ProfileStats(
         public_repositories=sum(not repository.is_private for repository in owned_values),
         private_repositories=sum(repository.is_private for repository in owned_values),
         contributed_repositories=len(contributed),
-        stars=sum(repository.stars for repository in owned_values if not repository.is_private),
         commits=aggregate.commits,
-        followers=metadata.followers,
+        active_repositories=sum(repository.head_oid is not None for repository in repository_values),
+        languages=len(
+            {
+                repository.primary_language.casefold()
+                for repository in repository_values
+                if repository.primary_language
+            }
+        ),
         additions=aggregate.additions,
         deletions=aggregate.deletions,
     )
@@ -601,16 +606,17 @@ def render_svg(theme_name: str, stats: ProfileStats) -> str:
         f'<tspan class="value">{_number(stats.contributed_repositories)}</tspan>'
     )
     activity_text = (
-        f"Stars: {_number(stats.stars)} | Commits: {_number(stats.commits)} | "
-        f"Followers: {_number(stats.followers)}"
+        f"Commits: {_number(stats.commits)} | "
+        f"Active Repos: {_number(stats.active_repositories)} | "
+        f"Languages: {_number(stats.languages)}"
     )
     activity_markup = (
-        '<tspan class="key">Stars</tspan>: '
-        f'<tspan class="value">{_number(stats.stars)}</tspan> | '
         '<tspan class="key">Commits</tspan>: '
         f'<tspan class="value">{_number(stats.commits)}</tspan> | '
-        '<tspan class="key">Followers</tspan>: '
-        f'<tspan class="value">{_number(stats.followers)}</tspan>'
+        '<tspan class="key">Active Repos</tspan>: '
+        f'<tspan class="value">{_number(stats.active_repositories)}</tspan> | '
+        '<tspan class="key">Languages</tspan>: '
+        f'<tspan class="value">{_number(stats.languages)}</tspan>'
     )
     loc_text = (
         f"Lines of Code: {_number(stats.lines_of_code)} "

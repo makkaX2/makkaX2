@@ -16,7 +16,7 @@ def repository_node(
     private: bool = False,
     head: str | None = "head",
     commits: int = 1,
-    stars: int = 0,
+    language: str | None = "Python",
 ) -> dict:
     default_branch = None
     if head is not None:
@@ -24,7 +24,7 @@ def repository_node(
     return {
         "nameWithOwner": name,
         "isPrivate": private,
-        "stargazers": {"totalCount": stars},
+        "primaryLanguage": None if language is None else {"name": language},
         "defaultBranchRef": default_branch,
     }
 
@@ -134,7 +134,7 @@ class FakeProfileClient:
 
     def get_user_metadata(self, login: str) -> today.UserMetadata:
         assert login == "makkaX2"
-        return today.UserMetadata("user-node", 7)
+        return today.UserMetadata("user-node")
 
     def list_owned_repositories(self, login: str) -> list[today.Repository]:
         return self.owned
@@ -150,10 +150,10 @@ class FakeProfileClient:
 
 def make_profile_client(private_head: str = "private-head") -> FakeProfileClient:
     owned = [
-        today.Repository("makkaX2/public", False, "public-head", 2, 5),
-        today.Repository("makkaX2/private", True, private_head, 1, 99),
+        today.Repository("makkaX2/public", False, "public-head", 2, "Python"),
+        today.Repository("makkaX2/private", True, private_head, 1, "Java"),
     ]
-    contributed = [today.Repository("someone/shared", False, "shared-head", 3, 12)]
+    contributed = [today.Repository("someone/shared", False, "shared-head", 3, "Kotlin")]
     contributions = {
         "makkaX2/public": today.ContributionTotals(2, 20, 4),
         "makkaX2/private": today.ContributionTotals(1, 10, 2),
@@ -168,7 +168,7 @@ def test_stats_split_private_data_and_reuse_safe_cache() -> None:
 
     stats, cache = today.collect_stats(first_client, token, {})
 
-    assert stats == today.ProfileStats(1, 1, 1, 5, 6, 7, 60, 12)
+    assert stats == today.ProfileStats(1, 1, 1, 6, 3, 3, 60, 12)
     assert stats.lines_of_code == 48
     assert sorted(first_client.scanned) == ["makkaX2/private", "makkaX2/public", "someone/shared"]
     serialized = json.dumps(cache)
@@ -197,7 +197,7 @@ def test_stats_split_private_data_and_reuse_safe_cache() -> None:
 
 
 def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> None:
-    stats = today.ProfileStats(4, 2, 3, 9, 25, 8, 1000, 250)
+    stats = today.ProfileStats(4, 2, 3, 25, 6, 5, 1000, 250)
     for theme in ("dark", "light"):
         svg = today.render_svg(theme, stats)
         root = ET.fromstring(svg)
@@ -218,9 +218,12 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
             "Public",
             "Private",
             "Contributed",
+            "Commits",
+            "Active Repos",
+            "Languages",
         ):
             assert expected in text
-        for forbidden in ("Host", "Kernel", "Email", "LinkedIn", "Hardware"):
+        for forbidden in ("Host", "Kernel", "Email", "LinkedIn", "Hardware", "Stars", "Followers"):
             assert forbidden not in text
         assert ".-+*****+*##*++++*##=." in text
         namespace = {"svg": "http://www.w3.org/2000/svg"}
