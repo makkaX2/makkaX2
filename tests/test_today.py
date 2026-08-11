@@ -222,7 +222,7 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
             assert expected in text
         for forbidden in ("Host", "Kernel", "Email", "LinkedIn", "Hardware"):
             assert forbidden not in text
-        assert ".+**++++**+-:.::=*#=" in text
+        assert ".=*******##+--:--+##=" in text
         namespace = {"svg": "http://www.w3.org/2000/svg"}
         aligned_values = root.findall(".//svg:text[@class='value aligned-value']", namespace)
         assert len(aligned_values) == 9
@@ -232,8 +232,8 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
         assert len(aligned_stats) == 3
         assert all(value.attrib["x"] == "960" for value in aligned_stats)
 
-    assert len(today.ASCII_LOGO) == 16
-    assert max(map(len, today.ASCII_LOGO)) <= 37
+    assert len(today.ASCII_LOGO) == 17
+    assert max(map(len, today.ASCII_LOGO)) <= 40
 
 
 def test_api_failure_does_not_replace_existing_outputs(tmp_path) -> None:
