@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" font-family="ConsolasFallback,Consolas,'Liberation Mono',monospace" width="985" height="530" viewBox="0 0 985 530" font-size="16" role="img" aria-labelledby="title desc">
+  <title id="title">makkaX2 GitHub profile</title>
+  <desc id="desc">Terminal-style profile card with Codex ASCII art and automatically updated GitHub statistics.</desc>
+  <style>
+    @font-face {
+      src: local('Consolas'), local('Consolas Bold');
+      font-family: 'ConsolasFallback';
+      font-display: swap;
+      size-adjust: 109%;
+    }
+    .key { fill: #953800; }
+    .value { fill: #0a3069; }
+    .add { fill: #1a7f37; }
+    .delete { fill: #cf222e; }
+    .cc { fill: #c2cfde; }
+    text, tspan { white-space: pre; }
+  </style>
+  <rect width="985" height="530" fill="#f6f8fa" rx="15"/>
+  <text fill="#24292f" class="ascii">
+    <tspan x="15" y="90">             @@@@@@@@@@@@@@@@             </tspan>
+    <tspan x="15" y="112">           @@@        @@     @@@          </tspan>
+    <tspan x="15" y="134">          @@                   @@@         </tspan>
+    <tspan x="15" y="156">         @@                      @@        </tspan>
+    <tspan x="15" y="178">      @@@                        @@        </tspan>
+    <tspan x="15" y="200">     @@      @@                  @@@       </tspan>
+    <tspan x="15" y="222">    @@       @@@                   @@      </tspan>
+    <tspan x="15" y="244">    @@        @@@                   @@     </tspan>
+    <tspan x="15" y="266">     @@       @@@                   @@     </tspan>
+    <tspan x="15" y="288">      @@     @@@                    @@     </tspan>
+    <tspan x="15" y="310">       @@    @        @@@@@@@     @@@      </tspan>
+    <tspan x="15" y="332">        @                       @@@         </tspan>
+    <tspan x="15" y="354">        @@                     @@          </tspan>
+    <tspan x="15" y="376">         @@                   @@           </tspan>
+    <tspan x="15" y="398">           @@@@@@@@@@       @@@            </tspan>
+    <tspan x="15" y="420">                    @@@@@@@@                </tspan>
+  </text>
+  <text fill="#24292f">
+    <tspan x="390" y="30">makkaX2@mxka</tspan><tspan class="cc"> --------------------------------------------</tspan>
+    <tspan x="390" y="55" class="cc">. </tspan><tspan class="key">OS</tspan><tspan>: </tspan><tspan class="cc">..................... </tspan><tspan class="value">Windows 11, Android 16, Arch Linux</tspan>
+    <tspan x="390" y="80" class="cc">. </tspan><tspan class="key">Birthday</tspan><tspan>: </tspan><tspan class="cc">........................................... </tspan><tspan class="value">June 1</tspan>
+    <tspan x="390" y="105" class="cc">. </tspan><tspan class="key">IDE</tspan><tspan>: </tspan><tspan class="cc">.............................................. </tspan><tspan class="value">VS Code</tspan>
+    <tspan x="390" y="145" class="cc">. </tspan><tspan class="key">Languages.Programming</tspan><tspan>: </tspan><tspan class="cc">............. </tspan><tspan class="value">Python, Java, Kotlin, Swift</tspan>
+    <tspan x="390" y="170" class="cc">. </tspan><tspan class="key">Languages.Computer</tspan><tspan>: </tspan><tspan class="cc">...................... </tspan><tspan class="value">HTML, CSS, LaTeX</tspan>
+    <tspan x="390" y="195" class="cc">. </tspan><tspan class="key">Languages.Real</tspan><tspan>: </tspan><tspan class="cc">............................ </tspan><tspan class="value">Russian, Latvian</tspan>
+    <tspan x="390" y="235" class="cc">. </tspan><tspan class="key">Hobby</tspan><tspan>: </tspan><tspan class="cc">................................. </tspan><tspan class="value">Telegram Bot Development</tspan>
+    <tspan x="390" y="285">- Contact </tspan><tspan class="cc">---------------------------------------------------</tspan>
+    <tspan x="390" y="315" class="cc">. </tspan><tspan class="key">Telegram</tspan><tspan>: </tspan><tspan class="cc">......................................... </tspan><tspan class="value">@nufxa</tspan>
+    <tspan x="390" y="340" class="cc">. </tspan><tspan class="key">Discord</tspan><tspan>: </tspan><tspan class="cc">.......................................... </tspan><tspan class="value">mxkaq7</tspan>
+    <tspan x="390" y="430">- GitHub Stats </tspan><tspan class="cc">----------------------------------------------</tspan>
+    <tspan x="390" y="455" class="cc">. </tspan><tspan class="key">Public</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Private</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Contributed</tspan>: <tspan class="value">0</tspan>
+    <tspan x="390" y="482" class="cc">. </tspan><tspan class="key">Stars</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Commits</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Followers</tspan>: <tspan class="value">0</tspan>
+    <tspan x="390" y="509" class="cc">. </tspan><tspan class="key">Lines of Code</tspan>: <tspan class="value">0</tspan> (<tspan class="add">0++</tspan>, <tspan class="delete">0--</tspan>)
+  </text>
+</svg>
