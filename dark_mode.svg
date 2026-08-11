@@ -1,55 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" font-family="ConsolasFallback,Consolas,'Liberation Mono',monospace" width="985" height="530" viewBox="0 0 985 530" font-size="16" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" font-family="ConsolasFallback,Consolas,'Liberation Mono',monospace" width="985" height="435" viewBox="0 0 985 435" font-size="16" role="img" aria-labelledby="title desc">
   <title id="title">makkaX2 GitHub profile</title>
   <desc id="desc">Terminal-style profile card with Codex ASCII art and automatically updated GitHub statistics.</desc>
   <style>
-    @font-face {
-      src: local('Consolas'), local('Consolas Bold');
-      font-family: 'ConsolasFallback';
-      font-display: swap;
-      size-adjust: 109%;
-    }
+    @font-face { src: local('Consolas'), local('Consolas Bold'); font-family: 'ConsolasFallback'; font-display: swap; size-adjust: 109%; }
     .key { fill: #ffa657; }
     .value { fill: #a5d6ff; }
     .add { fill: #3fb950; }
     .delete { fill: #f85149; }
     .cc { fill: #616e7f; }
+    .ascii { font-size: 15px; }
+    .leader { stroke: #616e7f; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1 6; }
+    .rule { stroke: #616e7f; stroke-width: 1; }
     text, tspan { white-space: pre; }
   </style>
-  <rect width="985" height="530" fill="#161b22" rx="15"/>
+  <rect width="985" height="435" fill="#161b22" rx="15"/>
   <text fill="#c9d1d9" class="ascii">
-    <tspan x="15" y="90">             @@@@@@@@@@@@@@@@             </tspan>
-    <tspan x="15" y="112">           @@@        @@     @@@          </tspan>
-    <tspan x="15" y="134">          @@                   @@@         </tspan>
-    <tspan x="15" y="156">         @@                      @@        </tspan>
-    <tspan x="15" y="178">      @@@                        @@        </tspan>
-    <tspan x="15" y="200">     @@      @@                  @@@       </tspan>
-    <tspan x="15" y="222">    @@       @@@                   @@      </tspan>
-    <tspan x="15" y="244">    @@        @@@                   @@     </tspan>
-    <tspan x="15" y="266">     @@       @@@                   @@     </tspan>
-    <tspan x="15" y="288">      @@     @@@                    @@     </tspan>
-    <tspan x="15" y="310">       @@    @        @@@@@@@     @@@      </tspan>
-    <tspan x="15" y="332">        @                       @@@         </tspan>
-    <tspan x="15" y="354">        @@                     @@          </tspan>
-    <tspan x="15" y="376">         @@                   @@           </tspan>
-    <tspan x="15" y="398">           @@@@@@@@@@       @@@            </tspan>
-    <tspan x="15" y="420">                    @@@@@@@@                </tspan>
+    <tspan x="44" y="88">         .-======-. .------.       </tspan>
+    <tspan x="44" y="108">      .-'        '-'       '-.     </tspan>
+    <tspan x="44" y="128">    .'                       '-.   </tspan>
+    <tspan x="44" y="148">   /                           \  </tspan>
+    <tspan x="44" y="168">.-'                             |  </tspan>
+    <tspan x="44" y="188">/        \                       |  </tspan>
+    <tspan x="44" y="208">|         \                      |  </tspan>
+    <tspan x="44" y="228">|          &gt;                     |  </tspan>
+    <tspan x="44" y="248">|         /          ______      |  </tspan>
+    <tspan x="44" y="268">\        /                      .'  </tspan>
+    <tspan x="44" y="288"> '.                         .-'     </tspan>
+    <tspan x="44" y="308">   '-.                    .'        </tspan>
+    <tspan x="44" y="328">      '---.         .---'           </tspan>
+    <tspan x="44" y="348">          '---------'               </tspan>
   </text>
-  <text fill="#c9d1d9">
-    <tspan x="390" y="30">makkaX2@mxka</tspan><tspan class="cc"> --------------------------------------------</tspan>
-    <tspan x="390" y="55" class="cc">. </tspan><tspan class="key">OS</tspan><tspan>: </tspan><tspan class="cc">..................... </tspan><tspan class="value">Windows 11, Android 16, Arch Linux</tspan>
-    <tspan x="390" y="80" class="cc">. </tspan><tspan class="key">Birthday</tspan><tspan>: </tspan><tspan class="cc">........................................... </tspan><tspan class="value">June 1</tspan>
-    <tspan x="390" y="105" class="cc">. </tspan><tspan class="key">IDE</tspan><tspan>: </tspan><tspan class="cc">.............................................. </tspan><tspan class="value">VS Code</tspan>
-    <tspan x="390" y="145" class="cc">. </tspan><tspan class="key">Languages.Programming</tspan><tspan>: </tspan><tspan class="cc">............. </tspan><tspan class="value">Python, Java, Kotlin, Swift</tspan>
-    <tspan x="390" y="170" class="cc">. </tspan><tspan class="key">Languages.Computer</tspan><tspan>: </tspan><tspan class="cc">...................... </tspan><tspan class="value">HTML, CSS, LaTeX</tspan>
-    <tspan x="390" y="195" class="cc">. </tspan><tspan class="key">Languages.Real</tspan><tspan>: </tspan><tspan class="cc">............................ </tspan><tspan class="value">Russian, Latvian</tspan>
-    <tspan x="390" y="235" class="cc">. </tspan><tspan class="key">Hobby</tspan><tspan>: </tspan><tspan class="cc">................................. </tspan><tspan class="value">Telegram Bot Development</tspan>
-    <tspan x="390" y="285">- Contact </tspan><tspan class="cc">---------------------------------------------------</tspan>
-    <tspan x="390" y="315" class="cc">. </tspan><tspan class="key">Telegram</tspan><tspan>: </tspan><tspan class="cc">......................................... </tspan><tspan class="value">@nufxa</tspan>
-    <tspan x="390" y="340" class="cc">. </tspan><tspan class="key">Discord</tspan><tspan>: </tspan><tspan class="cc">.......................................... </tspan><tspan class="value">mxkaq7</tspan>
-    <tspan x="390" y="430">- GitHub Stats </tspan><tspan class="cc">----------------------------------------------</tspan>
-    <tspan x="390" y="455" class="cc">. </tspan><tspan class="key">Public</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Private</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Contributed</tspan>: <tspan class="value">0</tspan>
-    <tspan x="390" y="482" class="cc">. </tspan><tspan class="key">Stars</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Commits</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Followers</tspan>: <tspan class="value">0</tspan>
-    <tspan x="390" y="509" class="cc">. </tspan><tspan class="key">Lines of Code</tspan>: <tspan class="value">0</tspan> (<tspan class="add">0++</tspan>, <tspan class="delete">0--</tspan>)
-  </text>
+  <g fill="#c9d1d9">
+    <text x="390" y="27">makkaX2@mxka</text><line x1="506" y1="22" x2="960" y2="22" class="rule"/>
+    <g class="data-row"><text x="390" y="51"><tspan class="cc">. </tspan><tspan class="key">OS</tspan><tspan>:</tspan></text><line x1="445" y1="46" x2="638" y2="46" class="leader"/><text x="960" y="51" text-anchor="end" class="value aligned-value">Windows 11, Android 16, Arch Linux</text></g>
+    <g class="data-row"><text x="390" y="75"><tspan class="cc">. </tspan><tspan class="key">Birthday</tspan><tspan>:</tspan></text><line x1="500" y1="70" x2="896" y2="70" class="leader"/><text x="960" y="75" text-anchor="end" class="value aligned-value">June 1</text></g>
+    <g class="data-row"><text x="390" y="99"><tspan class="cc">. </tspan><tspan class="key">IDE</tspan><tspan>:</tspan></text><line x1="454" y1="94" x2="887" y2="94" class="leader"/><text x="960" y="99" text-anchor="end" class="value aligned-value">VS Code</text></g>
+    <g class="data-row"><text x="390" y="132"><tspan class="cc">. </tspan><tspan class="key">Languages.Programming</tspan><tspan>:</tspan></text><line x1="620" y1="127" x2="703" y2="127" class="leader"/><text x="960" y="132" text-anchor="end" class="value aligned-value">Python, Java, Kotlin, Swift</text></g>
+    <g class="data-row"><text x="390" y="156"><tspan class="cc">. </tspan><tspan class="key">Languages.Computer</tspan><tspan>:</tspan></text><line x1="592" y1="151" x2="804" y2="151" class="leader"/><text x="960" y="156" text-anchor="end" class="value aligned-value">HTML, CSS, LaTeX</text></g>
+    <g class="data-row"><text x="390" y="180"><tspan class="cc">. </tspan><tspan class="key">Languages.Real</tspan><tspan>:</tspan></text><line x1="556" y1="175" x2="804" y2="175" class="leader"/><text x="960" y="180" text-anchor="end" class="value aligned-value">Russian, Latvian</text></g>
+    <g class="data-row"><text x="390" y="213"><tspan class="cc">. </tspan><tspan class="key">Hobby</tspan><tspan>:</tspan></text><line x1="473" y1="208" x2="730" y2="208" class="leader"/><text x="960" y="213" text-anchor="end" class="value aligned-value">Telegram Bot Development</text></g>
+    <text x="390" y="251">- Contact</text><line x1="489" y1="246" x2="960" y2="246" class="rule"/>
+    <g class="data-row"><text x="390" y="276"><tspan class="cc">. </tspan><tspan class="key">Telegram</tspan><tspan>:</tspan></text><line x1="500" y1="271" x2="896" y2="271" class="leader"/><text x="960" y="276" text-anchor="end" class="value aligned-value">@nufxa</text></g>
+    <g class="data-row"><text x="390" y="300"><tspan class="cc">. </tspan><tspan class="key">Discord</tspan><tspan>:</tspan></text><line x1="491" y1="295" x2="896" y2="295" class="leader"/><text x="960" y="300" text-anchor="end" class="value aligned-value">mxkaq7</text></g>
+    <text x="390" y="342">- GitHub Stats</text><line x1="535" y1="337" x2="960" y2="337" class="rule"/>
+    <text x="390" y="367" class="cc">. </text><line x1="409" y1="362" x2="592" y2="362" class="leader"/><text x="960" y="367" text-anchor="end" class="aligned-stats"><tspan class="key">Public</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Private</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Contributed</tspan>: <tspan class="value">0</tspan></text>
+    <text x="390" y="393" class="cc">. </text><line x1="409" y1="388" x2="620" y2="388" class="leader"/><text x="960" y="393" text-anchor="end" class="aligned-stats"><tspan class="key">Stars</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Commits</tspan>: <tspan class="value">0</tspan> | <tspan class="key">Followers</tspan>: <tspan class="value">0</tspan></text>
+    <text x="390" y="419" class="cc">. </text><line x1="409" y1="414" x2="703" y2="414" class="leader"/><text x="960" y="419" text-anchor="end" class="aligned-stats"><tspan class="key">Lines of Code</tspan>: <tspan class="value">0</tspan> (<tspan class="add">0++</tspan>, <tspan class="delete">0--</tspan>)</text>
+  </g>
 </svg>

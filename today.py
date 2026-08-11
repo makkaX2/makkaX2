@@ -476,23 +476,27 @@ def collect_stats(
 
 
 ASCII_LOGO = (
-    "             @@@@@@@@@@@@@@@@             ",
-    "           @@@        @@     @@@          ",
-    "          @@                   @@@         ",
-    "         @@                      @@        ",
-    "      @@@                        @@        ",
-    "     @@      @@                  @@@       ",
-    "    @@       @@@                   @@      ",
-    "    @@        @@@                   @@     ",
-    "     @@       @@@                   @@     ",
-    "      @@     @@@                    @@     ",
-    "       @@    @        @@@@@@@     @@@      ",
-    "        @                       @@@         ",
-    "        @@                     @@          ",
-    "         @@                   @@           ",
-    "           @@@@@@@@@@       @@@            ",
-    "                    @@@@@@@@                ",
+    "         .-======-. .------.       ",
+    "      .-'        '-'       '-.     ",
+    "    .'                       '-.   ",
+    "   /                           \\  ",
+    ".-'                             |  ",
+    "/        \\                       |  ",
+    "|         \\                      |  ",
+    "|          >                     |  ",
+    "|         /          ______      |  ",
+    "\\        /                      .'  ",
+    " '.                         .-'     ",
+    "   '-.                    .'        ",
+    "      '---.         .---'           ",
+    "          '---------'               ",
 )
+
+CARD_WIDTH = 985
+CARD_HEIGHT = 435
+CONTENT_LEFT = 390
+CONTENT_RIGHT = 960
+MONOSPACE_ADVANCE = 9.2
 
 THEMES = {
     "dark": {
@@ -524,19 +528,48 @@ def _number(value: int) -> str:
     return f"{value:,}"
 
 
-def _simple_row(y: int, label: str, value: str, width: int = 61) -> str:
-    prefix_length = len(label) + len(value) + 5
-    dots = "." * max(2, width - prefix_length)
+def _simple_row(y: int, label: str, value: str) -> str:
+    leader_start = CONTENT_LEFT + round((len(label) + 4) * MONOSPACE_ADVANCE)
+    leader_end = CONTENT_RIGHT - round(len(value) * MONOSPACE_ADVANCE) - 9
+    leader = ""
+    if leader_end > leader_start + 8:
+        leader = (
+            f'<line x1="{leader_start}" y1="{y - 5}" x2="{leader_end}" y2="{y - 5}" '
+            'class="leader"/>'
+        )
     return (
-        f'<tspan x="390" y="{y}" class="cc">. </tspan>'
-        f'<tspan class="key">{_xml(label)}</tspan><tspan>: </tspan>'
-        f'<tspan class="cc">{dots} </tspan><tspan class="value">{_xml(value)}</tspan>'
+        '<g class="data-row">'
+        f'<text x="{CONTENT_LEFT}" y="{y}"><tspan class="cc">. </tspan>'
+        f'<tspan class="key">{_xml(label)}</tspan><tspan>:</tspan></text>'
+        f"{leader}"
+        f'<text x="{CONTENT_RIGHT}" y="{y}" text-anchor="end" '
+        f'class="value aligned-value">{_xml(value)}</text>'
+        "</g>"
     )
 
 
 def _section(y: int, label: str) -> str:
-    hyphens = "-" * max(8, 58 - len(label))
-    return f'<tspan x="390" y="{y}">- {_xml(label)} </tspan><tspan class="cc">{hyphens}</tspan>'
+    rule_start = CONTENT_LEFT + round((len(label) + 3) * MONOSPACE_ADVANCE) + 7
+    return (
+        f'<text x="{CONTENT_LEFT}" y="{y}">- {_xml(label)}</text>'
+        f'<line x1="{rule_start}" y1="{y - 5}" x2="{CONTENT_RIGHT}" y2="{y - 5}" class="rule"/>'
+    )
+
+
+def _stats_row(y: int, plain_text: str, markup: str) -> str:
+    text_start = CONTENT_RIGHT - round(len(plain_text) * MONOSPACE_ADVANCE)
+    leader_end = text_start - 9
+    leader = ""
+    if leader_end > CONTENT_LEFT + 28:
+        leader = (
+            f'<line x1="{CONTENT_LEFT + 19}" y1="{y - 5}" x2="{leader_end}" y2="{y - 5}" '
+            'class="leader"/>'
+        )
+    return (
+        f'<text x="{CONTENT_LEFT}" y="{y}" class="cc">. </text>'
+        f"{leader}"
+        f'<text x="{CONTENT_RIGHT}" y="{y}" text-anchor="end" class="aligned-stats">{markup}</text>'
+    )
 
 
 def render_svg(theme_name: str, stats: ProfileStats) -> str:
@@ -546,49 +579,67 @@ def render_svg(theme_name: str, stats: ProfileStats) -> str:
         raise ValueError(f"Unknown theme: {theme_name}") from exc
 
     logo_rows = "\n".join(
-        f'<tspan x="15" y="{90 + index * 22}">{_xml(line)}</tspan>'
+        f'<tspan x="44" y="{88 + index * 20}">{_xml(line)}</tspan>'
         for index, line in enumerate(ASCII_LOGO)
     )
+    public_text = (
+        f"Public: {_number(stats.public_repositories)} | "
+        f"Private: {_number(stats.private_repositories)} | "
+        f"Contributed: {_number(stats.contributed_repositories)}"
+    )
+    public_markup = (
+        '<tspan class="key">Public</tspan>: '
+        f'<tspan class="value">{_number(stats.public_repositories)}</tspan> | '
+        '<tspan class="key">Private</tspan>: '
+        f'<tspan class="value">{_number(stats.private_repositories)}</tspan> | '
+        '<tspan class="key">Contributed</tspan>: '
+        f'<tspan class="value">{_number(stats.contributed_repositories)}</tspan>'
+    )
+    activity_text = (
+        f"Stars: {_number(stats.stars)} | Commits: {_number(stats.commits)} | "
+        f"Followers: {_number(stats.followers)}"
+    )
+    activity_markup = (
+        '<tspan class="key">Stars</tspan>: '
+        f'<tspan class="value">{_number(stats.stars)}</tspan> | '
+        '<tspan class="key">Commits</tspan>: '
+        f'<tspan class="value">{_number(stats.commits)}</tspan> | '
+        '<tspan class="key">Followers</tspan>: '
+        f'<tspan class="value">{_number(stats.followers)}</tspan>'
+    )
+    loc_text = (
+        f"Lines of Code: {_number(stats.lines_of_code)} "
+        f"({_number(stats.additions)}++, {_number(stats.deletions)}--)"
+    )
+    loc_markup = (
+        '<tspan class="key">Lines of Code</tspan>: '
+        f'<tspan class="value">{_number(stats.lines_of_code)}</tspan> ('
+        f'<tspan class="add">{_number(stats.additions)}++</tspan>, '
+        f'<tspan class="delete">{_number(stats.deletions)}--</tspan>)'
+    )
     info_rows = [
-        '<tspan x="390" y="30">makkaX2@mxka</tspan><tspan class="cc"> --------------------------------------------</tspan>',
-        _simple_row(55, "OS", "Windows 11, Android 16, Arch Linux"),
-        _simple_row(80, "Birthday", "June 1"),
-        _simple_row(105, "IDE", "VS Code"),
-        _simple_row(145, "Languages.Programming", "Python, Java, Kotlin, Swift"),
-        _simple_row(170, "Languages.Computer", "HTML, CSS, LaTeX"),
-        _simple_row(195, "Languages.Real", "Russian, Latvian"),
-        _simple_row(235, "Hobby", "Telegram Bot Development"),
-        _section(285, "Contact"),
-        _simple_row(315, "Telegram", "@nufxa"),
-        _simple_row(340, "Discord", "mxkaq7"),
-        _section(430, "GitHub Stats"),
         (
-            '<tspan x="390" y="455" class="cc">. </tspan>'
-            '<tspan class="key">Public</tspan>: <tspan class="value">'
-            f'{_number(stats.public_repositories)}</tspan> | <tspan class="key">Private</tspan>: '
-            f'<tspan class="value">{_number(stats.private_repositories)}</tspan> | '
-            '<tspan class="key">Contributed</tspan>: '
-            f'<tspan class="value">{_number(stats.contributed_repositories)}</tspan>'
+            f'<text x="{CONTENT_LEFT}" y="27">makkaX2@mxka</text>'
+            f'<line x1="506" y1="22" x2="{CONTENT_RIGHT}" y2="22" class="rule"/>'
         ),
-        (
-            '<tspan x="390" y="482" class="cc">. </tspan>'
-            '<tspan class="key">Stars</tspan>: <tspan class="value">'
-            f'{_number(stats.stars)}</tspan> | <tspan class="key">Commits</tspan>: '
-            f'<tspan class="value">{_number(stats.commits)}</tspan> | '
-            '<tspan class="key">Followers</tspan>: '
-            f'<tspan class="value">{_number(stats.followers)}</tspan>'
-        ),
-        (
-            '<tspan x="390" y="509" class="cc">. </tspan>'
-            '<tspan class="key">Lines of Code</tspan>: '
-            f'<tspan class="value">{_number(stats.lines_of_code)}</tspan> ('
-            f'<tspan class="add">{_number(stats.additions)}++</tspan>, '
-            f'<tspan class="delete">{_number(stats.deletions)}--</tspan>)'
-        ),
+        _simple_row(51, "OS", "Windows 11, Android 16, Arch Linux"),
+        _simple_row(75, "Birthday", "June 1"),
+        _simple_row(99, "IDE", "VS Code"),
+        _simple_row(132, "Languages.Programming", "Python, Java, Kotlin, Swift"),
+        _simple_row(156, "Languages.Computer", "HTML, CSS, LaTeX"),
+        _simple_row(180, "Languages.Real", "Russian, Latvian"),
+        _simple_row(213, "Hobby", "Telegram Bot Development"),
+        _section(251, "Contact"),
+        _simple_row(276, "Telegram", "@nufxa"),
+        _simple_row(300, "Discord", "mxkaq7"),
+        _section(342, "GitHub Stats"),
+        _stats_row(367, public_text, public_markup),
+        _stats_row(393, activity_text, activity_markup),
+        _stats_row(419, loc_text, loc_markup),
     ]
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" font-family="ConsolasFallback,Consolas,'Liberation Mono',monospace" width="985" height="530" viewBox="0 0 985 530" font-size="16" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" font-family="ConsolasFallback,Consolas,'Liberation Mono',monospace" width="{CARD_WIDTH}" height="{CARD_HEIGHT}" viewBox="0 0 {CARD_WIDTH} {CARD_HEIGHT}" font-size="16" role="img" aria-labelledby="title desc">
   <title id="title">makkaX2 GitHub profile</title>
   <desc id="desc">Terminal-style profile card with Codex ASCII art and automatically updated GitHub statistics.</desc>
   <style>
@@ -603,15 +654,18 @@ def render_svg(theme_name: str, stats: ProfileStats) -> str:
     .add {{ fill: {theme['add']}; }}
     .delete {{ fill: {theme['delete']}; }}
     .cc {{ fill: {theme['comment']}; }}
+    .ascii {{ font-size: 15px; }}
+    .leader {{ stroke: {theme['comment']}; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 1 6; }}
+    .rule {{ stroke: {theme['comment']}; stroke-width: 1; }}
     text, tspan {{ white-space: pre; }}
   </style>
-  <rect width="985" height="530" fill="{theme['background']}" rx="15"/>
+  <rect width="{CARD_WIDTH}" height="{CARD_HEIGHT}" fill="{theme['background']}" rx="15"/>
   <text fill="{theme['foreground']}" class="ascii">
 {logo_rows}
   </text>
-  <text fill="{theme['foreground']}">
+  <g fill="{theme['foreground']}">
 {chr(10).join(info_rows)}
-  </text>
+  </g>
 </svg>
 """
 

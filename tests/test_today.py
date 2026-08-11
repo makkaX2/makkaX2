@@ -202,7 +202,7 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
         svg = today.render_svg(theme, stats)
         root = ET.fromstring(svg)
         assert root.attrib["width"] == "985"
-        assert root.attrib["height"] == "530"
+        assert root.attrib["height"] == "435"
         text = "".join(root.itertext())
         for expected in (
             "makkaX2@mxka",
@@ -222,7 +222,18 @@ def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> N
             assert expected in text
         for forbidden in ("Host", "Kernel", "Email", "LinkedIn", "Hardware"):
             assert forbidden not in text
-        assert "@@@@@@@@" in text
+        assert "======" in text
+        namespace = {"svg": "http://www.w3.org/2000/svg"}
+        aligned_values = root.findall(".//svg:text[@class='value aligned-value']", namespace)
+        assert len(aligned_values) == 9
+        assert all(value.attrib["x"] == "960" for value in aligned_values)
+        assert all(value.attrib["text-anchor"] == "end" for value in aligned_values)
+        aligned_stats = root.findall(".//svg:text[@class='aligned-stats']", namespace)
+        assert len(aligned_stats) == 3
+        assert all(value.attrib["x"] == "960" for value in aligned_stats)
+
+    assert len(today.ASCII_LOGO) == 14
+    assert max(map(len, today.ASCII_LOGO)) <= 37
 
 
 def test_api_failure_does_not_replace_existing_outputs(tmp_path) -> None:
