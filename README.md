@@ -5,4 +5,4 @@
   </picture>
 </a>
 
-<!-- stats-updated: 2026-08-24 -->
+<!-- stats-updated: 2026-08-25 -->
