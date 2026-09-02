@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Iterable, Protocol
 
 import requests
 
@@ -127,6 +127,19 @@ class ProfileClient(Protocol):
     def scan_repository(self, repository: Repository, user_node_id: str) -> ContributionTotals: ...
 
 
+class ManagedRepositoryClient(Protocol):
+    def list_accessible_private_repositories(self) -> list[Repository]: ...
+
+    def scan_repository(self, repository: Repository, user_node_id: str) -> ContributionTotals: ...
+
+
+@dataclass(frozen=True)
+class RepositoryAccess:
+    repository: Repository
+    client: ProfileClient | ManagedRepositoryClient
+    token: str
+
+
 class GitHubGraphQL:
     """Small GraphQL client whose errors never expose request variables or tokens."""
 
@@ -174,6 +187,35 @@ class GitHubGraphQL:
           after: $cursor
           includeUserRepositories: false
           contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]
+          orderBy: {field: NAME, direction: ASC}
+        ) {
+          nodes {
+            nameWithOwner
+            isPrivate
+            primaryLanguage { name }
+            defaultBranchRef {
+              target {
+                ... on Commit {
+                  oid
+                  history { totalCount }
+                }
+              }
+            }
+          }
+          pageInfo { hasNextPage endCursor }
+        }
+      }
+    }
+    """
+
+    ACCESSIBLE_PRIVATE_REPOSITORIES_QUERY = """
+    query AccessiblePrivateRepositories($cursor: String) {
+      viewer {
+        repositories(
+          first: 100
+          after: $cursor
+          affiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]
+          privacy: PRIVATE
           orderBy: {field: NAME, direction: ASC}
         ) {
           nodes {
@@ -315,6 +357,30 @@ class GitHubGraphQL:
             "repositoriesContributedTo",
         )
 
+    def list_accessible_private_repositories(self) -> list[Repository]:
+        cursor: str | None = None
+        repositories: list[Repository] = []
+        while True:
+            data = self.execute(
+                "AccessiblePrivateRepositories",
+                self.ACCESSIBLE_PRIVATE_REPOSITORIES_QUERY,
+                {"cursor": cursor},
+            )
+            try:
+                connection = data["viewer"]["repositories"]
+                nodes = connection["nodes"]
+                page_info = connection["pageInfo"]
+            except (KeyError, TypeError) as exc:
+                raise ProfileUpdateError("AccessiblePrivateRepositories returned malformed data") from exc
+            if not isinstance(nodes, list) or not isinstance(page_info, dict):
+                raise ProfileUpdateError("AccessiblePrivateRepositories returned invalid pagination")
+            repositories.extend(Repository.from_graphql(node) for node in nodes if node is not None)
+            if not page_info.get("hasNextPage"):
+                return repositories
+            cursor = page_info.get("endCursor")
+            if not isinstance(cursor, str) or not cursor:
+                raise ProfileUpdateError("AccessiblePrivateRepositories returned an invalid cursor")
+
     def scan_repository(self, repository: Repository, user_node_id: str) -> ContributionTotals:
         if repository.head_oid is None:
             return ContributionTotals()
@@ -420,10 +486,26 @@ def collect_stats(
     client: ProfileClient,
     token: str,
     old_cache: dict[str, dict[str, int | str]],
+    additional_sources: Iterable[tuple[ManagedRepositoryClient, str]] = (),
 ) -> tuple[ProfileStats, dict[str, Any]]:
     metadata = client.get_user_metadata(PROFILE_USERNAME)
-    owned = _deduplicate(client.list_owned_repositories(PROFILE_USERNAME))
-    contributed = _deduplicate(client.list_contributed_repositories(PROFILE_USERNAME))
+    owned = {
+        key: RepositoryAccess(repository, client, token)
+        for key, repository in _deduplicate(client.list_owned_repositories(PROFILE_USERNAME)).items()
+    }
+    contributed = {
+        key: RepositoryAccess(repository, client, token)
+        for key, repository in _deduplicate(client.list_contributed_repositories(PROFILE_USERNAME)).items()
+    }
+
+    for source_client, source_token in additional_sources:
+        for key, repository in _deduplicate(
+            source_client.list_accessible_private_repositories()
+        ).items():
+            if not repository.is_private:
+                raise ProfileUpdateError("An additional source returned a non-private repository")
+            owned.setdefault(key, RepositoryAccess(repository, source_client, source_token))
+
     for key in owned:
         contributed.pop(key, None)
 
@@ -432,9 +514,13 @@ def collect_stats(
 
     aggregate = ContributionTotals()
     new_entries: dict[str, dict[str, int | str]] = {}
-    for repository in sorted(all_repositories.values(), key=lambda item: item.name_with_owner.casefold()):
-        repository_key = _repo_key(token, repository.name_with_owner)
-        revision_key = _head_key(token, repository.head_oid)
+    for access in sorted(
+        all_repositories.values(),
+        key=lambda item: item.repository.name_with_owner.casefold(),
+    ):
+        repository = access.repository
+        repository_key = _repo_key(access.token, repository.name_with_owner)
+        revision_key = _head_key(access.token, repository.head_oid)
         cached = old_cache.get(repository_key)
         if (
             cached is not None
@@ -447,7 +533,7 @@ def collect_stats(
                 deletions=int(cached["deletions"]),
             )
         else:
-            contribution = client.scan_repository(repository, metadata.node_id)
+            contribution = access.client.scan_repository(repository, metadata.node_id)
 
         aggregate += contribution
         new_entries[repository_key] = {
@@ -458,8 +544,8 @@ def collect_stats(
             "deletions": contribution.deletions,
         }
 
-    owned_values = list(owned.values())
-    repository_values = list(all_repositories.values())
+    owned_values = [access.repository for access in owned.values()]
+    repository_values = [access.repository for access in all_repositories.values()]
     stats = ProfileStats(
         public_repositories=sum(not repository.is_private for repository in owned_values),
         private_repositories=sum(repository.is_private for repository in owned_values),
@@ -710,11 +796,12 @@ def run_update(
     token: str,
     root: Path = ROOT,
     updated_on: date | None = None,
+    additional_sources: Iterable[tuple[ManagedRepositoryClient, str]] = (),
 ) -> ProfileStats:
     readme_path = root / "README.md"
     cache_path = root / "cache" / "stats.json"
     old_cache = load_cache(cache_path)
-    stats, cache_payload = collect_stats(client, token, old_cache)
+    stats, cache_payload = collect_stats(client, token, old_cache, additional_sources)
 
     if updated_on is None:
         updated_on = datetime.now(timezone.utc).date()
@@ -740,8 +827,17 @@ def main() -> int:
         print("README_STATS_TOKEN is required", file=sys.stderr)
         return 2
 
+    org_token = os.environ.get("README_STATS_ORG_TOKEN", "").strip()
+    additional_sources: list[tuple[ManagedRepositoryClient, str]] = []
+    if org_token and org_token != token:
+        additional_sources.append((GitHubGraphQL(org_token), org_token))
+
     try:
-        stats = run_update(GitHubGraphQL(token), token)
+        stats = run_update(
+            GitHubGraphQL(token),
+            token,
+            additional_sources=additional_sources,
+        )
     except ProfileUpdateError as exc:
         print(f"Profile update failed: {exc}", file=sys.stderr)
         return 1

@@ -70,6 +70,37 @@ def test_owned_repositories_are_paginated() -> None:
     ]
 
 
+def test_accessible_private_repositories_are_paginated() -> None:
+    client = PaginatedGraphQL(
+        [
+            {
+                "viewer": {
+                    "repositories": {
+                        "nodes": [repository_node("example-org/one", private=True)],
+                        "pageInfo": {"hasNextPage": True, "endCursor": "next"},
+                    }
+                }
+            },
+            {
+                "viewer": {
+                    "repositories": {
+                        "nodes": [repository_node("example-org/two", private=True)],
+                        "pageInfo": {"hasNextPage": False, "endCursor": None},
+                    }
+                }
+            },
+        ]
+    )
+
+    repositories = client.list_accessible_private_repositories()
+
+    assert [repository.name_with_owner for repository in repositories] == [
+        "example-org/one",
+        "example-org/two",
+    ]
+    assert client.calls == [{"cursor": None}, {"cursor": "next"}]
+
+
 def test_repository_scan_ignores_unlinked_and_other_authors() -> None:
     repository = today.Repository("makkaX2/project", False, "same-head", 4)
     client = PaginatedGraphQL(
@@ -148,6 +179,25 @@ class FakeProfileClient:
         return self.contributions[repository.name_with_owner]
 
 
+class FakeManagedClient:
+    def __init__(
+        self,
+        repositories: list[today.Repository],
+        contributions: dict[str, today.ContributionTotals],
+    ) -> None:
+        self.repositories = repositories
+        self.contributions = contributions
+        self.scanned: list[str] = []
+
+    def list_accessible_private_repositories(self) -> list[today.Repository]:
+        return self.repositories
+
+    def scan_repository(self, repository: today.Repository, user_node_id: str) -> today.ContributionTotals:
+        assert user_node_id == "user-node"
+        self.scanned.append(repository.name_with_owner)
+        return self.contributions[repository.name_with_owner]
+
+
 def make_profile_client(private_head: str = "private-head") -> FakeProfileClient:
     owned = [
         today.Repository("makkaX2/public", False, "public-head", 2, "Python"),
@@ -194,6 +244,65 @@ def test_stats_split_private_data_and_reuse_safe_cache() -> None:
         "makkaX2/public",
         "someone/shared",
     ]
+
+
+def test_additional_private_source_is_merged_and_cached_independently() -> None:
+    personal_token = "personal-token-value"
+    organization_token = "organization-token-value"
+    organization_repository = today.Repository(
+        "example-org/managed",
+        True,
+        "organization-head",
+        659,
+        "Python",
+    )
+    organization_totals = today.ContributionTotals(492, 367_981, 145_559)
+    personal_client = make_profile_client()
+    organization_client = FakeManagedClient(
+        [organization_repository],
+        {organization_repository.name_with_owner: organization_totals},
+    )
+
+    stats, cache = today.collect_stats(
+        personal_client,
+        personal_token,
+        {},
+        [(organization_client, organization_token)],
+    )
+
+    assert stats == today.ProfileStats(1, 2, 1, 498, 4, 3, 368_041, 145_571)
+    assert organization_client.scanned == ["example-org/managed"]
+    serialized = json.dumps(cache)
+    for secret in (personal_token, organization_token, "example-org/managed"):
+        assert secret not in serialized
+
+    repeated_personal = make_profile_client()
+    repeated_organization = FakeManagedClient(
+        [organization_repository],
+        {organization_repository.name_with_owner: organization_totals},
+    )
+    repeated_stats, repeated_cache = today.collect_stats(
+        repeated_personal,
+        personal_token,
+        cache["repositories"],
+        [(repeated_organization, organization_token)],
+    )
+    assert repeated_stats == stats
+    assert repeated_cache == cache
+    assert repeated_personal.scanned == []
+    assert repeated_organization.scanned == []
+
+    rotated_organization = FakeManagedClient(
+        [organization_repository],
+        {organization_repository.name_with_owner: organization_totals},
+    )
+    today.collect_stats(
+        make_profile_client(),
+        personal_token,
+        cache["repositories"],
+        [(rotated_organization, "rotated-organization-token")],
+    )
+    assert rotated_organization.scanned == ["example-org/managed"]
 
 
 def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> None:

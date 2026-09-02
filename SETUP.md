@@ -11,4 +11,6 @@ Public statistics and daily updates work automatically with the repository-scope
 
 The workflow uses the read-only token only for GitHub GraphQL statistics. Commits are pushed separately with the repository-scoped `GITHUB_TOKEN`. Private repository names are not written to SVG, README, cache, or workflow logs. A token rotation causes one full rescan and then incremental caching resumes.
 
-Private organization repositories are counted only when that organization allows the fine-grained token. GitHub may require an organization owner to approve it.
+To include selected private repositories owned by an organization, create a second read-only fine-grained token with that organization as its resource owner. Give it access only to the repositories that should be counted, grant **Contents: Read-only**, and save it as the repository secret `README_STATS_ORG_TOKEN`. Keep the personal `README_STATS_TOKEN` as well: the workflow merges both sources and removes duplicates.
+
+The organization may require an owner to approve its token before it can read private repositories. The second token is never used for git pushes, and rotating either token invalidates only that source's HMAC-keyed cache entries.
