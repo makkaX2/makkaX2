@@ -21,6 +21,7 @@ jobs:
     env:
       README_STATS_TOKEN: ${{ secrets.README_STATS_TOKEN || github.token }}
       README_STATS_ORG_TOKEN: ${{ secrets.README_STATS_ORG_TOKEN }}
+      README_STATS_ORG_OWNER: bazik-inc
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7

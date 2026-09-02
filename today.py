@@ -128,7 +128,7 @@ class ProfileClient(Protocol):
 
 
 class ManagedRepositoryClient(Protocol):
-    def list_accessible_private_repositories(self) -> list[Repository]: ...
+    def list_accessible_private_repositories(self, owner: str) -> list[Repository]: ...
 
     def scan_repository(self, repository: Repository, user_node_id: str) -> ContributionTotals: ...
 
@@ -209,12 +209,11 @@ class GitHubGraphQL:
     """
 
     ACCESSIBLE_PRIVATE_REPOSITORIES_QUERY = """
-    query AccessiblePrivateRepositories($cursor: String) {
-      viewer {
+    query AccessiblePrivateRepositories($owner: String!, $cursor: String) {
+      organization(login: $owner) {
         repositories(
           first: 100
           after: $cursor
-          affiliations: [OWNER, COLLABORATOR, ORGANIZATION_MEMBER]
           privacy: PRIVATE
           orderBy: {field: NAME, direction: ASC}
         ) {
@@ -357,17 +356,17 @@ class GitHubGraphQL:
             "repositoriesContributedTo",
         )
 
-    def list_accessible_private_repositories(self) -> list[Repository]:
+    def list_accessible_private_repositories(self, owner: str) -> list[Repository]:
         cursor: str | None = None
         repositories: list[Repository] = []
         while True:
             data = self.execute(
                 "AccessiblePrivateRepositories",
                 self.ACCESSIBLE_PRIVATE_REPOSITORIES_QUERY,
-                {"cursor": cursor},
+                {"owner": owner, "cursor": cursor},
             )
             try:
-                connection = data["viewer"]["repositories"]
+                connection = data["organization"]["repositories"]
                 nodes = connection["nodes"]
                 page_info = connection["pageInfo"]
             except (KeyError, TypeError) as exc:
@@ -486,7 +485,7 @@ def collect_stats(
     client: ProfileClient,
     token: str,
     old_cache: dict[str, dict[str, int | str]],
-    additional_sources: Iterable[tuple[ManagedRepositoryClient, str]] = (),
+    additional_sources: Iterable[tuple[ManagedRepositoryClient, str, str]] = (),
 ) -> tuple[ProfileStats, dict[str, Any]]:
     metadata = client.get_user_metadata(PROFILE_USERNAME)
     owned = {
@@ -498,10 +497,13 @@ def collect_stats(
         for key, repository in _deduplicate(client.list_contributed_repositories(PROFILE_USERNAME)).items()
     }
 
-    for source_client, source_token in additional_sources:
-        for key, repository in _deduplicate(
-            source_client.list_accessible_private_repositories()
-        ).items():
+    for source_client, source_token, source_owner in additional_sources:
+        source_repositories = _deduplicate(
+            source_client.list_accessible_private_repositories(source_owner)
+        )
+        if not source_repositories:
+            raise ProfileUpdateError("An additional source returned no private repositories")
+        for key, repository in source_repositories.items():
             if not repository.is_private:
                 raise ProfileUpdateError("An additional source returned a non-private repository")
             owned.setdefault(key, RepositoryAccess(repository, source_client, source_token))
@@ -796,7 +798,7 @@ def run_update(
     token: str,
     root: Path = ROOT,
     updated_on: date | None = None,
-    additional_sources: Iterable[tuple[ManagedRepositoryClient, str]] = (),
+    additional_sources: Iterable[tuple[ManagedRepositoryClient, str, str]] = (),
 ) -> ProfileStats:
     readme_path = root / "README.md"
     cache_path = root / "cache" / "stats.json"
@@ -828,9 +830,13 @@ def main() -> int:
         return 2
 
     org_token = os.environ.get("README_STATS_ORG_TOKEN", "").strip()
-    additional_sources: list[tuple[ManagedRepositoryClient, str]] = []
+    org_owner = os.environ.get("README_STATS_ORG_OWNER", "").strip()
+    additional_sources: list[tuple[ManagedRepositoryClient, str, str]] = []
+    if org_token and not org_owner:
+        print("README_STATS_ORG_OWNER is required when README_STATS_ORG_TOKEN is set", file=sys.stderr)
+        return 2
     if org_token and org_token != token:
-        additional_sources.append((GitHubGraphQL(org_token), org_token))
+        additional_sources.append((GitHubGraphQL(org_token), org_token, org_owner))
 
     try:
         stats = run_update(

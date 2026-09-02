@@ -70,11 +70,11 @@ def test_owned_repositories_are_paginated() -> None:
     ]
 
 
-def test_accessible_private_repositories_are_paginated() -> None:
+def test_organization_private_repositories_are_paginated() -> None:
     client = PaginatedGraphQL(
         [
             {
-                "viewer": {
+                "organization": {
                     "repositories": {
                         "nodes": [repository_node("example-org/one", private=True)],
                         "pageInfo": {"hasNextPage": True, "endCursor": "next"},
@@ -82,7 +82,7 @@ def test_accessible_private_repositories_are_paginated() -> None:
                 }
             },
             {
-                "viewer": {
+                "organization": {
                     "repositories": {
                         "nodes": [repository_node("example-org/two", private=True)],
                         "pageInfo": {"hasNextPage": False, "endCursor": None},
@@ -92,13 +92,16 @@ def test_accessible_private_repositories_are_paginated() -> None:
         ]
     )
 
-    repositories = client.list_accessible_private_repositories()
+    repositories = client.list_accessible_private_repositories("example-org")
 
     assert [repository.name_with_owner for repository in repositories] == [
         "example-org/one",
         "example-org/two",
     ]
-    assert client.calls == [{"cursor": None}, {"cursor": "next"}]
+    assert client.calls == [
+        {"owner": "example-org", "cursor": None},
+        {"owner": "example-org", "cursor": "next"},
+    ]
 
 
 def test_repository_scan_ignores_unlinked_and_other_authors() -> None:
@@ -189,7 +192,8 @@ class FakeManagedClient:
         self.contributions = contributions
         self.scanned: list[str] = []
 
-    def list_accessible_private_repositories(self) -> list[today.Repository]:
+    def list_accessible_private_repositories(self, owner: str) -> list[today.Repository]:
+        assert owner == "example-org"
         return self.repositories
 
     def scan_repository(self, repository: today.Repository, user_node_id: str) -> today.ContributionTotals:
@@ -267,7 +271,7 @@ def test_additional_private_source_is_merged_and_cached_independently() -> None:
         personal_client,
         personal_token,
         {},
-        [(organization_client, organization_token)],
+        [(organization_client, organization_token, "example-org")],
     )
 
     assert stats == today.ProfileStats(1, 2, 1, 498, 4, 3, 368_041, 145_571)
@@ -285,7 +289,7 @@ def test_additional_private_source_is_merged_and_cached_independently() -> None:
         repeated_personal,
         personal_token,
         cache["repositories"],
-        [(repeated_organization, organization_token)],
+        [(repeated_organization, organization_token, "example-org")],
     )
     assert repeated_stats == stats
     assert repeated_cache == cache
@@ -300,9 +304,19 @@ def test_additional_private_source_is_merged_and_cached_independently() -> None:
         make_profile_client(),
         personal_token,
         cache["repositories"],
-        [(rotated_organization, "rotated-organization-token")],
+        [(rotated_organization, "rotated-organization-token", "example-org")],
     )
     assert rotated_organization.scanned == ["example-org/managed"]
+
+
+def test_empty_additional_source_does_not_publish_partial_stats() -> None:
+    with pytest.raises(today.ProfileUpdateError, match="no private repositories"):
+        today.collect_stats(
+            make_profile_client(),
+            "personal-token",
+            {},
+            [(FakeManagedClient([], {}), "organization-token", "example-org")],
+        )
 
 
 def test_rendered_svg_is_valid_and_contains_only_requested_profile_fields() -> None:
